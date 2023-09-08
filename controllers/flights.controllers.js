@@ -42,7 +42,20 @@ export async function newFlight (req,res) {
     }
 }
 
+export async function newTravel (req,res) {
+  const {passengerId, flightId} = req.body
+  try {
+    const passengerExists = await db.query(`SELECT 1 FROM passengers WHERE id = $1`, [passengerId]);
+    const flightExists = await db.query(`SELECT 1 FROM flights WHERE id = $1`, [flightId]);
 
+    if (passengerExists.rowCount === 0 || flightExists.rowCount === 0) {
+      res.status(404).json({ error: "Passageiro ou voo não encontrado" });
+    }
+    
+  } catch (err) {
+    res.status(500).send(err.message);
+  }
+}
 
 
 

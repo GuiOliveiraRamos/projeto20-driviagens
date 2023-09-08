@@ -9,3 +9,8 @@ export const schemaFlight = Joi.object({
     destination: Joi.number().integer().positive().required(),
     date: Joi.string().regex(/^\d{2}-\d{2}-\d{4}$/).required()
 })
+
+export const schemaTravel = Joi.object({
+    passengerId: Joi.number().integer().positive().required(),
+    flightId: Joi.number().integer().positive().required()
+})
