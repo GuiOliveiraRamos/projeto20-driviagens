@@ -14,3 +14,11 @@ export const schemaTravel = Joi.object({
     passengerId: Joi.number().integer().positive().required(),
     flightId: Joi.number().integer().positive().required()
 })
+
+export const schemaGetFlights = Joi.object({
+    'smaller-date': Joi.string()
+    .regex(/^\d{2}-\d{2}-\d{4}$/),
+
+'bigger-date': Joi.string()
+    .regex(/^\d{2}-\d{2}-\d{4}$/)
+})

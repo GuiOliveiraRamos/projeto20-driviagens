@@ -1,12 +1,18 @@
-export async function newCity (req,res) {
-    const {name} = req.body 
+import validateSchema from "../middlewares/validateSchema.js";
+import { addCityDB, cityExistsByNameDB, getFlightsDB, getTravelsPassengersDB } from "../repositories/flights.repository.js";
+import { schemaGetFlights } from "../schemas/flights.schemas.js";
+
+export async function newCity(req, res) {
+    const { name } = req.body;
+
     try {
-        const existingCity = await db.query(`SELECT * FROM cities WHERE name = $1`, [name]);
-        if (existingCity.rows.length > 0) {
+        const cityAlreadyExists = await cityExistsByNameDB(name);
+
+        if (cityAlreadyExists) {
             res.status(409).json({ error: "Cidade já existe" });
         } else {
-            const addCity = await db.query(`INSERT INTO cities (name) VALUES ($1) RETURNING *`, [name]);
-            res.status(201).json(addCity.rows[0]);
+            const newCity = await addCityDB(name);
+            res.status(201).json(newCity);
         }
     } catch (err) {
         res.status(500).send(err.message);
@@ -57,6 +63,52 @@ export async function newTravel (req,res) {
   }
 }
 
+export async function getFlights(req, res) {
+    try {
+        const originQuery = req.query.origin;
+        const destinationQuery = req.query.destination;
+        const smallerDateQuery = req.query['smaller-date'];
+        const biggerDateQuery = req.query['bigger-date'];
+
+        if (!(smallerDateQuery && biggerDateQuery)) {
+            res.status(422).send('Ambos os parâmetros smaller-date e bigger-date devem ser fornecidos.');
+            return;
+        }
+
+        const smallerDate = smallerDateQuery.split('-').reverse().join('-');
+        const biggerDate = biggerDateQuery.split('-').reverse().join('-');
+
+        if (smallerDate > biggerDate) {
+            res.status(400).send('A data smaller-date não pode ser maior do que bigger-date.');
+            return;
+        }
+
+        validateSchema(schemaGetFlights)
+
+        const flights = await getFlightsDB(originQuery, destinationQuery, smallerDate, biggerDate);
+
+        res.status(200).json(flights);
+    } catch (err) {
+        res.status(500).send('Erro ao buscar dados de voos');
+    }
+}
+
+
+export async function getTravelsPassengers(req, res) {
+    try {
+        const nameQuery = req.query.name;
+        const passengers = await getTravelsPassengersDB(nameQuery);
+
+        if (passengers.length > 10) {
+            res.status(500).send('Too many results');
+            return;
+        }
+
+        res.status(200).json(passengers);
+    } catch (err) {
+        res.status(500).send('Erro ao buscar dados de passageiros e viagens');
+    }
+}
 
 
 

@@ -1,7 +1,7 @@
 import { Router } from "express";
-import validateSchema from "../middlewares/validateSchema";
-import { schemaCity, schemaFlight, schemaTravel } from "../schemas/flights.schemas";
-import { newCity, newFlight, newTravel } from "../controllers/flights.controllers";
+import validateSchema from "../middlewares/validateSchema.js";
+import { schemaCity, schemaFlight, schemaTravel } from "../schemas/flights.schemas.js";
+import { newCity, newFlight, newTravel } from "../controllers/flights.controllers.js";
 
 const flightRoutes = Router()
 

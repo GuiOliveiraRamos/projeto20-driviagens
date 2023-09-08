@@ -1,7 +1,7 @@
 import { Router } from "express";
-import validateSchema from "../middlewares/validateSchema";
-import { schemaPassenger } from "../schemas/passengers.schemas";
-import { newPassenger } from "../controllers/passengers.controllers";
+import validateSchema from "../middlewares/validateSchema.js";
+import { schemaPassenger } from "../schemas/passengers.schemas.js";
+import { newPassenger } from "../controllers/passengers.controllers.js";
 
 const passengersRoutes = Router()
 
