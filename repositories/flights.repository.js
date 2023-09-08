@@ -1,26 +1,26 @@
-export async function cityExistsByNameDB(name) {
+ async function cityExistsByNameDB(name) {
     const result = await db.query('SELECT 1 FROM cities WHERE name = $1', [name]);
     return result.rows.length > 0;
 }
 
-export async function addCityDB(name) {
+ async function addCityDB(name) {
     const query = 'INSERT INTO cities (name) VALUES ($1) RETURNING *';
     const values = [name];
     const result = await db.query(query, values);
     return result.rows[0];
 }
 
-export async function cityExistsByIdDB(id) {
+ async function cityExistsByIdDB(id) {
     const result = await db.query('SELECT 1 FROM cities WHERE id = $1', [id]);
     return result.rowCount > 0;
 }
 
-export async function flightExistsByOriginAndDestinationDB(origin, destination) {
+ async function flightExistsByOriginAndDestinationDB(origin, destination) {
     const result = await db.query('SELECT 1 FROM flights WHERE origin = $1 AND destination = $2', [origin, destination]);
     return result.rowCount > 0;
 }
 
-export async function addFlightDB(origin, destination, date) {
+ async function addFlightDB(origin, destination, date) {
     const query = 'INSERT INTO flights (origin, destination, date) VALUES ($1, $2, $3) RETURNING *';
     const values = [origin, destination, date];
     const result = await db.query(query, values);
@@ -28,7 +28,7 @@ export async function addFlightDB(origin, destination, date) {
 }
 
 
-export function getFlightsDB(origin, destination, smallerDate, biggerDate) {
+ function getFlightsDB(origin, destination, smallerDate, biggerDate) {
     const query = `
         SELECT
             flights.id,
@@ -54,7 +54,16 @@ export function getFlightsDB(origin, destination, smallerDate, biggerDate) {
     return db.query(query, [origin || null, destination || null, smallerDate, biggerDate]);
 }
 
-export async function getTravelsPassengersDB(name) {
+ async function passengerExistsByIdDB(passengerId) {
+    const result = await db.query(`SELECT 1 FROM passengers WHERE id = $1`, [passengerId]);
+    return result.rowCount > 0;
+}
+
+ async function flightExistsByIdDB(flightId) {
+    const result = await db.query(`SELECT 1 FROM flights WHERE id = $1`, [flightId]);
+    return result.rowCount > 0;
+}
+ async function getTravelsPassengersDB(name) {
     let query = `
         SELECT
             CONCAT(p.firstName, ' ', p.lastName) AS passenger,
@@ -88,3 +97,16 @@ export async function getTravelsPassengersDB(name) {
     return rows;
 }
 
+const flightsRepository = {
+    cityExistsByNameDB,
+    addCityDB,
+    cityExistsByIdDB,
+    flightExistsByOriginAndDestinationDB,
+    addFlightDB,
+    getFlightsDB,
+    passengerExistsByIdDB,
+    flightExistsByIdDB,
+    getTravelsPassengersDB
+}
+
+export default flightsRepository
