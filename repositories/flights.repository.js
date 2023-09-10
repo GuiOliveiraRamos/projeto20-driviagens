@@ -1,14 +1,18 @@
- async function cityExistsByNameDB(name) {
+import db from "../database/db.connection.js";
+
+async function cityExistsByNameDB(name) {
     const result = await db.query('SELECT 1 FROM cities WHERE name = $1', [name]);
     return result.rows.length > 0;
 }
 
- async function addCityDB(name) {
-    const query = 'INSERT INTO cities (name) VALUES ($1) RETURNING *';
+async function addCityDB(name) {
+    const query = 'INSERT INTO cities (name) VALUES ($1) RETURNING  *';
     const values = [name];
     const result = await db.query(query, values);
+    console.log('City added:', result.rows[0]);
     return result.rows[0];
 }
+
 
  async function cityExistsByIdDB(id) {
     const result = await db.query('SELECT 1 FROM cities WHERE id = $1', [id]);
@@ -28,7 +32,7 @@
 }
 
 
- function getFlightsDB(origin, destination, smallerDate, biggerDate) {
+function getFlightsDB(origin, destination, smallerDate, biggerDate) {
     const query = `
         SELECT
             flights.id,
@@ -42,17 +46,21 @@
         INNER JOIN
             cities AS cities_destination ON flights.destination = cities_destination.id
         WHERE
-            ($1 IS NULL OR cities_origin.name = $1)
+            ($1::int IS NULL OR cities_origin.name = $1::text)
         AND
-            ($2 IS NULL OR cities_destination.name = $2)
+            ($2::int IS NULL OR cities_destination.name = $2::text)
         AND
-            ($3 IS NULL OR flights.date BETWEEN $3 AND $4)
+            ($3::date IS NULL OR flights.date BETWEEN $3::date AND $4::date)
         ORDER BY
             flights.date;
     `;
 
+    console.log('Executing getFlightsDB with params:', origin, destination, smallerDate, biggerDate);
+
     return db.query(query, [origin || null, destination || null, smallerDate, biggerDate]);
 }
+
+
 
  async function passengerExistsByIdDB(passengerId) {
     const result = await db.query(`SELECT 1 FROM passengers WHERE id = $1`, [passengerId]);

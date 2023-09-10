@@ -1,9 +1,18 @@
- async function addPassengerDB(firstName, lastName) {
+import db from "../database/db.connection.js";
+
+async function addPassengerDB(firstName, lastName) {
     const query = 'INSERT INTO passengers (firstName, lastName) VALUES ($1, $2) RETURNING *';
     const values = [firstName, lastName];
-    const result = await db.query(query, values);
-    return result.rows[0];
-}
+  
+    try {
+      const result = await db.query(query, values);
+      const newPassenger = result.rows[0];
+      return newPassenger;
+    } catch (err) {
+      throw err;
+    }
+  }
+  
 
  async function getTravelsPassengersDB(name) {
     let query = `

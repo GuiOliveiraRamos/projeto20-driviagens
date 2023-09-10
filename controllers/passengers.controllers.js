@@ -11,6 +11,7 @@ export async function newPassenger(req, res) {
     res.status(500).send(err.message);
   }
 }
+
 export async function getTravelsPassengers(req, res) {
   try {
     const nameQuery = req.query.name;

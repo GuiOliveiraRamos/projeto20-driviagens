@@ -1,9 +1,13 @@
 export default function validateSchema(schema) {
     return (req, res, next) => {
-        const { error } = schema.validate(req.body, { abortEarly: false });
-        if (error) return res.status(422).send(
-            { message: error.details.map(d => d.message) }
-        );
+        const validation = schema.validate(req.body, { abortEarly: false });
+        if (validation.error) {
+            let errorMessage = ""
+            validation.error.details.forEach(det => 
+                errorMessage += det.message + " "
+            )
+            return res.status(422).send(errorMessage)
+        }
         next();
     }
 }

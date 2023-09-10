@@ -5,12 +5,13 @@ export async function newCity(req, res) {
   const { name } = req.body;
 
   try {
-    const newCity = await flightsServices.createCityService(name);
-    res.status(201).json(newCity);
+      const newCity = await flightsServices.createCityService(name);
+      res.status(201).send(newCity);
   } catch (error) {
-    res.status(500).send(error.message);
+      res.status(500).send(error.message);
   }
 }
+
 
 export async function newFlight(req, res) {
   const { origin, destination, date } = req.body;
@@ -36,20 +37,26 @@ export async function newTravel(req, res) {
 
 export async function getFlights(req, res) {
   try {
-    const originQuery = req.query.origin;
-    const destinationQuery = req.query.destination;
-    const smallerDateQuery = req.query["smaller-date"];
-    const biggerDateQuery = req.query["bigger-date"];
+      console.log('Entering getFlights function...');
 
-    const flights = await flightsServices.getFlightsService(
-      originQuery,
-      destinationQuery,
-      smallerDateQuery,
-      biggerDateQuery
-    );
+      const originQuery = parseInt(req.query.origin);
+      const destinationQuery = parseInt(req.query.destination);
+      const smallerDateQuery = req.query["smaller-date"];
+      const biggerDateQuery = req.query["bigger-date"];
 
-    res.status(200).json(flights);
+      const flights = await flightsServices.getFlightsService(
+          originQuery,
+          destinationQuery,
+          smallerDateQuery,
+          biggerDateQuery
+      );
+
+      console.log('getFlights function executed successfully.');
+      res.status(200).json(flights);
   } catch (err) {
-    res.status(500).send(err.message);
+      console.error('Error in getFlights function:', err);
+      res.status(500).send(err.message);
   }
 }
+
+
