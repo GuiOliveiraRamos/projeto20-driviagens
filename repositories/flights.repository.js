@@ -34,30 +34,20 @@ async function addCityDB(name) {
 
 function getFlightsDB(origin, destination, smallerDate, biggerDate) {
     const query = `
-        SELECT
-            flights.id,
-            cities_origin.name AS origin,
-            cities_destination.name AS destination,
-            flights.date
-        FROM
-            flights
-        INNER JOIN
-            cities AS cities_origin ON flights.origin = cities_origin.id
-        INNER JOIN
-            cities AS cities_destination ON flights.destination = cities_destination.id
-        WHERE
-            ($1::int IS NULL OR cities_origin.name = $1::text)
-        AND
-            ($2::int IS NULL OR cities_destination.name = $2::text)
-        AND
-            ($3::date IS NULL OR flights.date BETWEEN $3::date AND $4::date)
-        ORDER BY
-            flights.date;
-    `;
+    SELECT f.id, c1.name AS origin, c2.name AS destination, TO_CHAR(f.date, 'DD-MM-YYYY') AS date
+    FROM flights AS f
+    JOIN cities AS c1 ON f.origin = c1.id
+    JOIN cities AS c2 ON f.destination = c2.id
+    WHERE ($1::text IS NULL OR c1.name = $1)
+    AND ($2::text IS NULL OR c2.name = $2)
+    AND ($3::date IS NULL OR f.date >= $3)
+    AND ($4::date IS NULL OR f.date <= $4)
+    ORDER BY f.date;
+`;
 
     console.log('Executing getFlightsDB with params:', origin, destination, smallerDate, biggerDate);
 
-    return db.query(query, [origin || null, destination || null, smallerDate, biggerDate]);
+    return db.query(query, [origin || null, destination || null, smallerDate || null, biggerDate || null]);
 }
 
 

@@ -2,14 +2,13 @@ import { notFound } from "../errors/notFoundError.js";
 import { conflictError } from "../errors/conflictError.js";
 import { invalidFlightDate } from "../errors/invalidFlightDate.js";
 import flightsRepository from "../repositories/flights.repository.js";
-import { paramsError } from "../errors/paramsError.js";
 import { badRequest } from "../errors/badRequest.js";
 
 async function createCityService(name) {
     const cityAlreadyExists = await flightsRepository.cityExistsByNameDB(name);
 
     if (cityAlreadyExists) {
-        throw conflictError("Cidade");
+        throw conflictError("Cidade já está cadastrada");
     }
     const newCity = await flightsRepository.addCityDB(name);
     return newCity;
@@ -26,15 +25,15 @@ export async function createFlightService(origin, destination, date) {
 
     const currentDate = new Date();
     const flightDate = new Date(date);
+    console.log("date de hoje:", currentDate)
+    console.log("data do vôo:", flightDate)
 
     if (flightDate <= currentDate) {
         throw invalidFlightDate("A data do voo deve ser maior do que a data atual");
     }
 
-    const flightAlreadyExists = await flightsRepository.flightExistsByOriginAndDestinationDB(origin, destination);
-
-    if (flightAlreadyExists) {
-        throw conflictError("Voo");
+    if (origin === destination) {
+        throw conflictError("Origem e destino não podem ser iguais");
     }
 
     const newFlight = await flightsRepository.addFlightDB(origin, destination, date);
@@ -56,14 +55,8 @@ export async function createNewTravelService(passengerId, flightId) {
 
 export async function getFlightsService(originQuery, destinationQuery, smallerDateQuery, biggerDateQuery) {
     
-        
-        if (!(smallerDateQuery && biggerDateQuery)) {
-            throw paramsError();
-        }
-
         const smallerDate = smallerDateQuery.split('-').reverse().join('-');
         const biggerDate = biggerDateQuery.split('-').reverse().join('-');
-
     
         if (smallerDate > biggerDate) {
             throw badRequest();
