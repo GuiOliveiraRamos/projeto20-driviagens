@@ -71,6 +71,16 @@ function getFlightsDB(origin, destination, smallerDate, biggerDate) {
     const result = await db.query(`SELECT 1 FROM flights WHERE id = $1`, [flightId]);
     return result.rowCount > 0;
 }
+
+export async function insertNewTravel(passengerId, flightId) {
+        const query = 'INSERT INTO travel (passengerId, flightId) VALUES ($1, $2) RETURNING *';
+        const values = [passengerId, flightId];
+
+        const result = await db.query(query, values);
+
+        return result.rows[0].id;
+    } 
+
  async function getTravelsPassengersDB(name) {
     let query = `
         SELECT
@@ -114,6 +124,7 @@ const flightsRepository = {
     getFlightsDB,
     passengerExistsByIdDB,
     flightExistsByIdDB,
+    insertNewTravel,
     getTravelsPassengersDB
 }
 

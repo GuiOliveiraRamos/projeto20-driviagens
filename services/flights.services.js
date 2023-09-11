@@ -3,6 +3,7 @@ import { conflictError } from "../errors/conflictError.js";
 import { invalidFlightDate } from "../errors/invalidFlightDate.js";
 import flightsRepository from "../repositories/flights.repository.js";
 import { paramsError } from "../errors/paramsError.js";
+import { badRequest } from "../errors/badRequest.js";
 
 async function createCityService(name) {
     const cityAlreadyExists = await flightsRepository.cityExistsByNameDB(name);
@@ -48,36 +49,29 @@ export async function createNewTravelService(passengerId, flightId) {
         throw notFound("Passageiro ou voo não encontrado");
     }
 
-    return { passengerId, flightId };
+    const insertNewTravel = await flightsRepository.insertNewTravel(passengerId, flightId);
+
+    return insertNewTravel;
 }
 
 export async function getFlightsService(originQuery, destinationQuery, smallerDateQuery, biggerDateQuery) {
-    try {
-        console.log('Executing getFlightsService...');
+    
         
         if (!(smallerDateQuery && biggerDateQuery)) {
-            console.log('Both smaller-date and bigger-date parameters are required.');
             throw paramsError();
         }
 
         const smallerDate = smallerDateQuery.split('-').reverse().join('-');
         const biggerDate = biggerDateQuery.split('-').reverse().join('-');
 
-        console.log('Smaller Date:', smallerDate);
-        console.log('Bigger Date:', biggerDate);
-
+    
         if (smallerDate > biggerDate) {
-            console.log('Smaller date cannot be greater than bigger date.');
-            throw new Error();
+            throw badRequest();
         }
 
         const flights = await flightsRepository.getFlightsDB(originQuery, destinationQuery, smallerDate, biggerDate);
 
-        return flights;
-    } catch (err) {
-        console.error('Error in getFlightsService:', err);
-        throw new Error('Erro ao buscar dados de voos');
-    }
+        return flights;    
 }
 
 
